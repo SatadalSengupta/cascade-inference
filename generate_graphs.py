@@ -3,6 +3,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import math, random
 import collections
+import simulation_properties as SP
 
 path_prefix = "/home/satadal/Workspaces/Projects/Social.Caching/Code"
 
@@ -87,7 +88,7 @@ def boost_view_share_probabilities(Gcomplete,Gbase,view_boost,share_boost):
 
 ##################################################
 
-def prepare_graphs(filter_count,mean,sd,view_boost,share_boost):
+def generate_graphs(filter_count,mean,sd,view_boost,share_boost):
     
     filter_edgelist(filter_count)
     Gbase = nx.read_edgelist(os.path.join(path_prefix,"facebook_sampled.txt"), nodetype=int)
@@ -98,12 +99,12 @@ def prepare_graphs(filter_count,mean,sd,view_boost,share_boost):
     edges_with_prob_one = boost_view_share_probabilities(Gcomplete,Gbase,view_boost,share_boost)
     print("Edges with probability 1.0: "+str(edges_with_prob_one))
 
-    return
+    return Gbase, Gcomplete
 
 ##################################################
 
 def main():
-    prepare_graphs(100,0.5,0.15,0.3,0.3)
+    generate_graphs (SP.SAMPLE_SIZE, SP.MEAN, SP.SD, SP.VIEW_BOOST, SP.SHARE_BOOST)
     return
 
 ##################################################
