@@ -10,8 +10,8 @@ path_prefix = "/home/satadal/Workspaces/Projects/Social.Caching/Code"
 ##################################################
 
 def filter_edgelist(node_count):
-    ifp = open(os.path.join(path_prefix,"facebook.txt"),"r")
-    ofp = open(os.path.join(path_prefix,"facebook_sampled.txt"),"w")
+    ifp = open(os.path.join(path_prefix,SP.DATASET),"r")
+    ofp = open(os.path.join(path_prefix,SP.SAMPLED_DATASET),"w")
     edges = ifp.readlines()
     ifp.close()
 
@@ -91,7 +91,7 @@ def boost_view_share_probabilities(Gcomplete,Gbase,view_boost,share_boost):
 def generate_graphs(filter_count,mean,sd,view_boost,share_boost):
     
     filter_edgelist(filter_count)
-    Gbase = nx.read_edgelist(os.path.join(path_prefix,"facebook_sampled.txt"), nodetype=int)
+    Gbase = nx.read_edgelist(os.path.join(path_prefix,SP.SAMPLED_DATASET), nodetype=int)
     #draw_graph(Gbase,"Gbase")
     Gcomplete = nx.complete_graph(Gbase.number_of_nodes())
     #draw_graph(Gcomplete,"Gcomplete")
