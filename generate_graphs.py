@@ -88,7 +88,7 @@ def boost_view_share_probabilities(Gcomplete,Gbase,view_boost,share_boost):
 
 ##################################################
 
-def generate_graphs(filter_count,mean,sd,view_boost,share_boost):
+def generate_graphs (filter_count=SP.SAMPLE_SIZE, mean=SP.MEAN, sd=SP.SD, view_boost=SP.VIEW_BOOST, share_boost=SP.SHARE_BOOST):
     
     filter_edgelist(filter_count)
     Gbase = nx.read_edgelist(os.path.join(path_prefix,SP.SAMPLED_DATASET), nodetype=int)
@@ -97,7 +97,7 @@ def generate_graphs(filter_count,mean,sd,view_boost,share_boost):
     #draw_graph(Gcomplete,"Gcomplete")
     assign_probabilities(Gcomplete,mean,sd)
     edges_with_prob_one = boost_view_share_probabilities(Gcomplete,Gbase,view_boost,share_boost)
-    print("Edges with probability 1.0: "+str(edges_with_prob_one))
+    #print("Edges with probability 1.0: "+str(edges_with_prob_one))
 
     return Gbase, Gcomplete
 

@@ -1,18 +1,37 @@
 import os
+from verbose_display import display
+import networkx as nx
+import generate_graphs as GG
 import simulation_properties as SP
 import introduce_all_content as IAC
+from collections import Counter
 
 ############################################
 
-def combine_event_forests (event_forests):
+def combine_event_forests (EFAll):
 
-    return Gintermediate_digraph
+    edge_list = []
+    weighted_edges = []
+
+    for ET in EFAll:
+        edge_list.extend(nx.edges(ET))
+    #print edge_list
+
+    edge_frequencies = Counter(edge_list)
+    #print edge_frequencies
+
+    for key, value in edge_frequencies.iteritems():
+        weighted_edges.append((key[0],key[1],value))
+
+    return weighted_edges
 
 ############################################
 
-def impose_weight_restriction (Gintermediate_digraph, weight_threshold):
+def impose_weight_restriction (weighted_edges, weight_threshold):
 
-    return Gintermediate_filtered
+    weighted_edges_filtered = [edge for edge in weighted_edges if edge[2]>=weight_threshold]
+
+    return weighted_edges_filtered
 
 ############################################
 
@@ -22,24 +41,50 @@ def get_undirected_graph (Gintermediate_filtered):
 
 ############################################
 
+def get_weighted_graph (weighted_edges_filtered):
+    
+    Ginferred_weighted_directed = nx.DiGraph()
+    Ginferred_weighted_directed.add_weighted_edges_from(weighted_edges_filtered)
+
+    return Ginferred_weighted_directed
+
+############################################
+
+def get_directed_graph(weighted_edges_filtered):
+
+    directed_edges = []    
+    for edge in weighted_edges_filtered:
+        directed_edges.append((edge[0],edge[1]))
+    Ginferred_directed = nx.DiGraph()
+    Ginferred_directed.add_edges_from(directed_edges)
+
+    return Ginferred_directed
+
+############################################
+
 def infer_graph (Gcomplete, run_count):
 
-    event_forests = []
+    EFAll = []
     
     for i in range(run_count):
-        event_forest = IAC.introduce_all_content (Gcomplete, SP.CONTENT_COUNT)
-        event_forests.append (event_forest)
+        EF = IAC.introduce_all_content (Gcomplete, SP.CONTENT_COUNT)
+        EFAll.extend(EF)
 
-    Gintermediate_digraph = combine_event_forests (event_forests)
-    Gintermediate_filtered = impose_weight_restriction (Gintermediate_digraph, SP.WEIGHT_THRESHOLD)
-    Gintermediate = get_undirected_graph (Gintermediate_filtered)
+    weighted_edges = combine_event_forests (EFAll)
+    weighted_edges_filtered = impose_weight_restriction (weighted_edges, SP.WEIGHT_THRESHOLD)
     
-    return Gintermediate        
+    Ginferred_weighted_directed = get_weighted_graph(weighted_edges_filtered)
+    Ginferred_directed = get_directed_graph(weighted_edges_filtered)
+    Ginferred = Ginferred_directed.to_undirected()
+    
+    return Ginferred
 
 ############################################
 
 def main():
+    Gbase, Gcomplete = GG.generate_graphs()
     Ginferred = infer_graph (Gcomplete, SP.RUN_COUNT)
+    #print Ginferred.edge
     return
 
 ############################################

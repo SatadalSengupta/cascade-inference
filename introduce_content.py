@@ -1,6 +1,7 @@
 import os
 import simulation_properties as SP
 import generate_graphs as GG
+from verbose_display import display
 import networkx as nx
 import random
 from collections import defaultdict, deque
@@ -42,18 +43,18 @@ def should_child_share (share_prob):
 
 def get_view_prob (G, child, parent, not_viewed, content_level):
     
-    print "\nVIEW:: Node is "+str(child)
+    display("\nVIEW:: Node is "+str(child))
 
     view_prob = G.node[child]['Pview'][parent]
-    print "VIEW:: Initial value: "+str(view_prob)
+    display("VIEW:: Initial value: "+str(view_prob))
 
     for node in not_viewed:
         view_prob *= (1.0 - G.node[child]['Pview'][node])
-        print "VIEW:: Value now: "+str(view_prob)+" for source node "+str(node)
+        display("VIEW:: Value now: "+str(view_prob)+" for source node "+str(node))
 
     view_boost, share_boost = get_content_boost(content_level)
     view_prob *= (1.0 + view_boost)
-    print "VIEW:: Final value after content boost: "+str(view_prob)
+    display("VIEW:: Final value after content boost: "+str(view_prob))
 
     view_prob = view_prob if view_prob < 1.0 else 1.0
 
@@ -63,18 +64,18 @@ def get_view_prob (G, child, parent, not_viewed, content_level):
 
 def get_share_prob (G, child, parent, not_shared, content_level):
 
-    print "\nSHARE:: Node is: "+str(child)
+    display("\nSHARE:: Node is: "+str(child))
     
     share_prob = G.node[child]['Pshare'][parent]
-    print "SHARE:: Initial value: "+str(share_prob)
+    display("SHARE:: Initial value: "+str(share_prob))
 
     for node in not_shared:
         share_prob *= (1.0 - G.node[child]['Pshare'][node])
-        print "SHARE:: Value now: "+str(share_prob)+" for source node "+str(node)
+        display("SHARE:: Value now: "+str(share_prob)+" for source node "+str(node))
 
     view_boost, share_boost = get_content_boost(content_level)
     share_prob *= (1.0 + share_boost)
-    print "SHARE:: Final value after content boost: "+str(share_prob)
+    display("SHARE:: Final value after content boost: "+str(share_prob))
 
     share_prob = share_prob if share_prob < 1.0 else 1.0
 
@@ -103,12 +104,12 @@ def introduce_for_node (Gcomplete, node_id, content_level):
         
         current_sources = [i for i in next_sources]
         next_sources = []
-        print "\n\nSources for this iteration: "+str(current_sources)
+        display("\n\nSources for this iteration: "+str(current_sources))
         
         for source in current_sources:
-            print "\nCurrent source: "+str(source)
+            display("\nCurrent source: "+str(source))
             neighbors = [n for n in G.neighbors(source) if n not in visited]
-            print "Neighbors: "+str(neighbors)
+            display("Neighbors: "+str(neighbors))
             
             for neighbor in neighbors:
                 view_prob = get_view_prob(G, neighbor, source, not_viewed_for[neighbor], content_level)
@@ -116,40 +117,40 @@ def introduce_for_node (Gcomplete, node_id, content_level):
                 if should_child_view(view_prob):
                     ET.add_edge(source,neighbor)
                     visited.append(neighbor)
-                    print "Viewed for "+str(neighbor)+" with prob "+str(view_prob)
+                    display("Viewed for "+str(neighbor)+" with prob "+str(view_prob))
     
                     share_prob = get_share_prob(G, neighbor, source, not_shared_for[neighbor], content_level)
 
                     if should_child_share(share_prob):
                         next_sources.append(neighbor)
-                        print "Shared for "+str(neighbor)+" with prob "+str(share_prob)
+                        display("Shared for "+str(neighbor)+" with prob "+str(share_prob))
                     else:
                         not_shared_for[neighbor].append(source)
-                        print "Not shared for "+str(neighbor)+" with prob "+str(share_prob)
+                        display("Not shared for "+str(neighbor)+" with prob "+str(share_prob))
 
                 else:
                     not_viewed_for[neighbor].append(source)
                     not_shared_for[neighbor].append(source)
-                    print "Not viewed for "+str(neighbor)+" with prob "+str(view_prob)
+                    display("Not viewed for "+str(neighbor)+" with prob "+str(view_prob))
 
     return ET
 
 ######################################################
 
 def get_next_point_of_intro (size):
-    return 0
-    #return random.randint(0,size-1)
+    #return 0
+    return random.randint(0,size-1)
 
 ######################################################
 
 def get_points_of_intro (Gcomplete, no_of_points):
 
-    print "No. of points of introduction: "+str(no_of_points)
+    display("No. of points of introduction: "+str(no_of_points))
     points_of_intro = []
     
     for i in range(no_of_points):
         points_of_intro.append(get_next_point_of_intro(Gcomplete.number_of_nodes()))
-    print("Points of introduction: "+str(points_of_intro))   
+    display("Points of introduction: "+str(points_of_intro))   
  
     return points_of_intro
 
@@ -157,8 +158,8 @@ def get_points_of_intro (Gcomplete, no_of_points):
 
 def get_no_of_points_of_intro (size):
     
-    return 1
-    #return random.randint(1,size)
+    #return 1
+    return random.randint(1,size)
 
 ######################################################
 
@@ -171,7 +172,7 @@ def introduce_content (Gcomplete, content_level):
         ET = introduce_for_node (Gcomplete, point, content_level)
         EFlocal.append(ET)
 
-    print "\n\n"+str(EFlocal[0].edge)
+    display("\n\n"+str(EFlocal[0].edge))
 
     return EFlocal
 

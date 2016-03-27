@@ -2,16 +2,24 @@ import os
 
 ###############################
 
-DATASET = "test_graph.txt"
+VERBOSE = False
+
+DATASET = "facebook.txt"
 SAMPLED_DATASET = DATASET.split(".")[0] + "_sampled.txt"
-SAMPLE_SIZE = 10
+SAMPLE_SIZE = 100
+
 MEAN = 0.5
 SD = 0.15
 VIEW_BOOST = 0.3
 SHARE_BOOST = 0.3
-RUN_COUNT = 1
+
+RUN_COUNT = 50
+
+CONTENT_LEVELS = 3
 CONTENT_COUNT = 1
-WEIGHT_THRESHOLD = 1
+
+WEIGHT_THRESHOLD = 20
+
 CONTENT_LVL1_BOOST_VIEW = 0.0
 CONTENT_LVL1_BOOST_SHARE = 0.0
 CONTENT_LVL2_BOOST_VIEW = 0.15
