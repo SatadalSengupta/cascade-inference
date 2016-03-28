@@ -1,4 +1,5 @@
 *.pyc
 *_sampled.txt
+*.swp
 test.py
 test_graph.txt

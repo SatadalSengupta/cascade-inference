@@ -5,6 +5,7 @@ import generate_graphs as GG
 import simulation_properties as SP
 import introduce_all_content as IAC
 from collections import Counter
+import numpy as np
 
 ############################################
 
@@ -35,9 +36,18 @@ def impose_weight_restriction (weighted_edges, weight_threshold):
 
 ############################################
 
-def get_undirected_graph (Gintermediate_filtered):
+def get_weight_threshold (weighted_edges, weight_threshold):
 
-    return Gintermediate
+    weights = [int(edge[2]) for edge in weighted_edges]
+    mean = np.mean(weights)
+    std = np.std(weights)
+    #print weights
+    print "Mean: "+str(mean)+", Std: "+str(std)
+    std_x = float(weight_threshold)
+    th = int(round(mean+(std*std_x),0))
+    print "Threshold: "+str(th)
+
+    return th
 
 ############################################
 
@@ -71,7 +81,8 @@ def infer_graph (Gcomplete, run_count):
         EFAll.extend(EF)
 
     weighted_edges = combine_event_forests (EFAll)
-    weighted_edges_filtered = impose_weight_restriction (weighted_edges, SP.WEIGHT_THRESHOLD)
+    weight_threshold = get_weight_threshold (weighted_edges, SP.WEIGHT_THRESHOLD)
+    weighted_edges_filtered = impose_weight_restriction (weighted_edges, weight_threshold)
     
     Ginferred_weighted_directed = get_weighted_graph(weighted_edges_filtered)
     Ginferred_directed = get_directed_graph(weighted_edges_filtered)
