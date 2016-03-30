@@ -3,15 +3,15 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import math, random
 import collections
-import simulation_properties as SP
+from operator import itemgetter as itg
 
 path_prefix = "/home/satadal/Workspaces/Projects/Social.Caching/Code"
 
 ##################################################
 
-def filter_edgelist(node_count):
-    ifp = open(os.path.join(path_prefix,SP.DATASET),"r")
-    ofp = open(os.path.join(path_prefix,SP.SAMPLED_DATASET),"w")
+def filter_edgelist (PARAMS, node_list):
+    ifp = open(os.path.join(path_prefix,PARAMS['dataset']),"r")
+    ofp = open(os.path.join(path_prefix,PARAMS['sampled_dataset']),"w")
     edges = ifp.readlines()
     ifp.close()
 
@@ -19,7 +19,7 @@ def filter_edgelist(node_count):
 
     for edge in edges:
         tokens = edge.rstrip().split(" ")
-        if int(tokens[0]) < node_count and int(tokens[1]) < node_count:
+        if (int(tokens[0]) in node_list) and (int(tokens[1]) in node_list):
             writelines += edge
 
     ofp.write(writelines)
@@ -88,10 +88,41 @@ def boost_view_share_probabilities(Gcomplete,Gbase,view_boost,share_boost):
 
 ##################################################
 
-def generate_graphs (filter_count=SP.SAMPLE_SIZE, mean=SP.MEAN, sd=SP.SD, view_boost=SP.VIEW_BOOST, share_boost=SP.SHARE_BOOST):
+def get_filtered_nodes (Goriginal, PARAMS):
+
+    size = PARAMS['sample_size']
+    sample_using = PARAMS['sampling_technique']
+    node_list = []
+
+    degrees = Goriginal.degree(list(Goriginal.node))
+    node_deg_asc = sorted ( degrees.items(), key=itg(1) )
+    node_deg_desc = sorted (degrees.items(), key=itg(1), reverse=True )    
+    node_asc = [i[0] for i in node_deg_asc]
+    node_desc = [i[0] for i in node_deg_desc]
+
+    if sample_using == "DegreeMin":
+        node_list = node_asc[:size]
+
+    elif sample_using == "DegreeMax":
+        node_list = node_desc[:size]
+
+    return node_list
+
+##################################################
+
+def generate_graphs (PARAMS):
+
+    filter_count = PARAMS['sample_size']
+    mean = PARAMS['vwshprob_mean']
+    sd = PARAMS['vwshprob_stdv']
+    view_boost = PARAMS['view_boost']
+    share_boost = PARAMS['share_boost']
     
-    filter_edgelist(filter_count)
-    Gbase = nx.read_edgelist(os.path.join(path_prefix,SP.SAMPLED_DATASET), nodetype=int)
+    Goriginal = nx.read_edgelist(os.path.join(path_prefix,PARAMS['dataset']), nodetype=int)
+    filtered_nodelist = get_filtered_nodes (Goriginal, PARAMS)    
+
+    filter_edgelist(PARAMS,filtered_nodelist)
+    Gbase = nx.read_edgelist(os.path.join(path_prefix,PARAMS['sampled_dataset']), nodetype=int)
     #draw_graph(Gbase,"Gbase")
     Gcomplete = nx.complete_graph(Gbase.number_of_nodes())
     #draw_graph(Gcomplete,"Gcomplete")
@@ -104,7 +135,7 @@ def generate_graphs (filter_count=SP.SAMPLE_SIZE, mean=SP.MEAN, sd=SP.SD, view_b
 ##################################################
 
 def main():
-    generate_graphs (SP.SAMPLE_SIZE, SP.MEAN, SP.SD, SP.VIEW_BOOST, SP.SHARE_BOOST)
+    #generate_graphs (SP.SAMPLE_SIZE, SP.MEAN, SP.SD, SP.VIEW_BOOST, SP.SHARE_BOOST)
     return
 
 ##################################################

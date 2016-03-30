@@ -1,5 +1,4 @@
 import os
-import simulation_properties as SP
 import generate_graphs as GG
 from verbose_display import display
 import networkx as nx
@@ -8,22 +7,14 @@ from collections import defaultdict, deque
 
 ######################################################
 
+PARAMS = {}
+
+######################################################
+
 def get_content_boost (content_level):
 
-    view_boost = 0.0
-    share_boost = 0.0
-
-    if content_level == 1:
-        view_boost = SP.CONTENT_LVL1_BOOST_VIEW
-        share_boost = SP.CONTENT_LVL1_BOOST_SHARE
-
-    elif content_level == 2:
-        view_boost = SP.CONTENT_LVL2_BOOST_VIEW
-        share_boost = SP.CONTENT_LVL2_BOOST_SHARE
-
-    else:
-        view_boost = SP.CONTENT_LVL3_BOOST_VIEW
-        share_boost = SP.CONTENT_LVL3_BOOST_SHARE
+    view_boost = PARAMS['cmlb_view'] + (0.2*(content_level-1))
+    share_boost = PARAMS['cmlb_share'] + (0.2*(content_level-1))
    
     return view_boost, share_boost
 
@@ -159,28 +150,30 @@ def get_points_of_intro (Gcomplete, no_of_points):
 def get_no_of_points_of_intro (size):
     
     #return 1
-    return random.randint(1,size)
+    return int(random.gauss (size*PARAMS['poi_mean'], size*PARAMS['poi_stdv']))
 
 ######################################################
 
-def introduce_content (Gcomplete, content_level):
+def introduce_content (Gcomplete, content_level, parameters):
 
     EFlocal = []
+    global PARAMS
+    PARAMS = parameters
     points_of_intro = get_points_of_intro (Gcomplete, get_no_of_points_of_intro(Gcomplete.number_of_nodes()))
     
     for point in points_of_intro:
         ET = introduce_for_node (Gcomplete, point, content_level)
         EFlocal.append(ET)
 
-    display("\n\n"+str(EFlocal[0].edge))
+    #display("\n\n"+str(EFlocal[0].edge))
 
     return EFlocal
 
 ######################################################
 
 def main():
-    Gbase, Gcomplete = GG.generate_graphs (SP.SAMPLE_SIZE, SP.MEAN, SP.SD, SP.VIEW_BOOST, SP.SHARE_BOOST)
-    EFlocal = introduce_content (Gcomplete, random.randint(1,3))
+    #Gbase, Gcomplete = GG.generate_graphs (SP.SAMPLE_SIZE, SP.MEAN, SP.SD, SP.VIEW_BOOST, SP.SHARE_BOOST)
+    #EFlocal = introduce_content (Gcomplete, random.randint(1,3))
     return
 
 ######################################################

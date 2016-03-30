@@ -10,7 +10,6 @@ CONTENT_LEVELS = 3
 POI_MEAN = 0.3 # 30% of Sample Size
 POI_STDV = 0.2 # 20% of Sample Size
 
-
 ### VARIABLE PROPERTIES VARIED FOR ALL SUBSEQUENT PROPERTIES ###
 
 SAMPLING_TECHNIQUE = [ "DegreeMin", "DegreeMax" ] # Can be any sub-set of (Random, DegreeMin, DegreeMax)
