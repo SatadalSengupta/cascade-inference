@@ -5,6 +5,7 @@ import generate_graphs as GG
 import introduce_all_content as IAC
 from collections import Counter
 import numpy as np
+import run_all_simulations as RAS
 
 ############################################
 
@@ -81,21 +82,28 @@ def infer_graph (Gcomplete, PARAMS):
         EFAll.extend(EF)
 
     weighted_edges = combine_event_forests (EFAll)
+    display("infer_graph", "Obtained weighted edges from forest.")
     weight_threshold = get_weight_threshold (weighted_edges, PARAMS)
+    display("infer_graph", "Obtain weight threshold.")
     weighted_edges_filtered = impose_weight_restriction (weighted_edges, weight_threshold)
+    display("infer_graph", "Imposed weight restriction.")
     
     Ginferred_weighted_directed = get_weighted_graph(weighted_edges_filtered)
+    display("infer_graph", "Obtained weighted directed graph.")
     Ginferred_directed = get_directed_graph(weighted_edges_filtered)
+    display("infer_graph", "Obtained directed graph.")
     Ginferred = Ginferred_directed.to_undirected()
+    display("infer_graph", "Obtained final inferred graph.")
     
     return Ginferred
 
 ############################################
 
 def main():
-    #Gbase, Gcomplete = GG.generate_graphs()
-    #Ginferred = infer_graph (Gcomplete, SP.RUN_COUNT)
-    #print Ginferred.edge
+    params = RAS.load_parameters_for_test_run()
+    Gbase, Gcomplete = GG.generate_graphs(params)
+    Ginferred = infer_graph (Gcomplete, params)
+    GG.draw_graph(Ginferred,"Ginferred")
     return
 
 ############################################

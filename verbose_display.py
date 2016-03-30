@@ -1,10 +1,19 @@
+import os
 import simulation_properties as SP
+from datetime import datetime as dt
 
 ##################################################
 
-def display(text):
+def display(fnc,text):
+    
     if SP.VERBOSE:
-        print text
+        log_path = os.path.join(SP.CWD,"log.txt")
+        fp = open(log_path,"a")
+        fmt = "{0} : {1: <25} : {2}"
+        writeline = fmt.format(str(dt.now())[:19],fnc[:25],text)
+        fp.write(writeline+"\n")
+        fp.close()
+
     return
 
 ##################################################

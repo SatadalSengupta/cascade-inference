@@ -2,7 +2,8 @@ import os
 
 ### STATIC PROPERTIES ###
 
-VERBOSE = False
+CWD = os.getcwd()
+VERBOSE = True
 DATASET = "facebook.txt"
 SAMPLED_DATASET = DATASET.split(".")[0] + "_sampled.txt"
 RUN_COUNT = 1
@@ -12,12 +13,11 @@ POI_STDV = 0.2 # 20% of Sample Size
 
 ### VARIABLE PROPERTIES VARIED FOR ALL SUBSEQUENT PROPERTIES ###
 
-SAMPLING_TECHNIQUE = [ "DegreeMin", "DegreeMax" ] # Can be any sub-set of (Random, DegreeMin, DegreeMax)
-
+SAMPLING_TECHNIQUE = [ "DegreeMax", "DegreeMin" ] # Can be any sub-set of (Random, DegreeMin, DegreeMax)
 
 ### VARIABLE PROPERTIES VARIED WHILE OTHER PROPERTIES ARE CONSTANT ###
 
-SAMPLE_SIZE = [ 100, 1000, 100, 500 ] # The format is [StartValue, EndValue, Step, ValueWhenStatic]
+SAMPLE_SIZE = [ 100, 400, 50, 200 ] # The format is [StartValue, EndValue, Step, ValueWhenStatic]
 
 CONTENT_COUNT = [ 100, 10000, 100, 1000 ] # The format is [StartValue, EndValue, Step, ValueWhenStatic]
 

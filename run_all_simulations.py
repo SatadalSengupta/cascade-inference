@@ -2,6 +2,18 @@ import compare_graphs as CG
 import simulation_properties as SP
 import numpy as np
 import os
+from datetime import datetime
+from verbose_display import display
+
+############################################################
+
+def load_parameters_for_test_run():
+
+    PARAMS, ALLVAR, STATVAR = load_all_properties()
+    PARAMS = load_default_properties(PARAMS)
+    display("load_parameters_for_test_run", "Parameters loaded for test run.")
+
+    return PARAMS
 
 ############################################################
 
@@ -45,16 +57,16 @@ def load_all_properties():
 
 def load_default_properties(PARAMS):
 
-    # PARAMS['sampling_technique'] = "DegreeMin"
-    PARAMS['sample_size'] = 500
-    PARAMS['content_count'] = 1000
-    PARAMS['vwshprob_mean'] = 0.5
-    PARAMS['vwshprob_stdv'] = 0.15
-    PARAMS['view_boost'] = 0.5
-    PARAMS['share_boost'] = 0.5
-    PARAMS['weight_threshold'] = 2.5
-    PARAMS['cmlb_view'] = 0.3
-    PARAMS['cmlb_share'] = 0.3
+    PARAMS['sampling_technique'] = SP.SAMPLING_TECHNIQUE[0]
+    PARAMS['sample_size'] = SP.SAMPLE_SIZE[3]
+    PARAMS['content_count'] = SP.CONTENT_COUNT[3]
+    PARAMS['vwshprob_mean'] = SP.VWSHPROB_MEAN[3]
+    PARAMS['vwshprob_stdv'] = SP.VWSHPROB_STDV[3]
+    PARAMS['view_boost'] = SP.VIEW_BOOST[3]
+    PARAMS['share_boost'] = SP.SHARE_BOOST[3]
+    PARAMS['weight_threshold'] = SP.WEIGHT_THRESHOLD[3]
+    PARAMS['cmlb_view'] = SP.CONTENT_MINLVL_BOOST_VIEW[3]
+    PARAMS['cmlb_share'] = SP.CONTENT_MINLVL_BOOST_SHARE[3]
 
     return PARAMS 
 
@@ -64,7 +76,7 @@ def dump_results (fp, PARAMS, comparison_stats, count):
 
     fmt = '{0:50} = {1}\n'
     writeline = ""
-    writeline += "RUN " + str(count) + " OUT OF 474\n\n"
+    writeline += "RUN " + str(count) + " OUT OF 474 AT TIME: " + str(datetime.now()) + "\n\n"
     writeline += fmt.format("Sampling technique", str(PARAMS['sampling_technique']))
     writeline += fmt.format("Sample size", str(PARAMS['sample_size']))
     writeline += fmt.format("Content count", str(PARAMS['content_count']))
@@ -108,24 +120,13 @@ def run_simulation (sequence_number):
         PARAMS['sampling_technique'] = st_item
         PARAMS = load_default_properties(PARAMS)
 
-        # Variation for sample size
-        start = STATVAR['sample_size'][0]
-        stop = STATVAR['sample_size'][1]
-        step = STATVAR['sample_size'][2]
-        for i in range ( start, stop+step, step ):
-            PARAMS['sample_size'] = i
-            comparison_stats = CG.compare_graphs(PARAMS)
-            count += 1
-            dump_results (fp, PARAMS, comparison_stats, count)
-        PARAMS['sample_size'] = STATVAR['sample_size'][3]    
-        
-        # Variation for content count
+       # Variation for content count
         start = STATVAR['content_count'][0]
         stop = STATVAR['content_count'][1]
         step = STATVAR['content_count'][2]
         for i in range (start, stop+step, step):
             PARAMS['content_count'] = i
-            #comparison_stats = CG.compare_graphs(PARAMS)
+            comparison_stats = CG.compare_graphs(PARAMS)
             count += 1
             dump_results (fp, PARAMS, comparison_stats, count)
         PARAMS['content_count'] = STATVAR['content_count'][3]
@@ -141,7 +142,7 @@ def run_simulation (sequence_number):
             for j in np.linspace(sd_start, sd_stop, num = int((sd_stop-sd_start)/sd_step)+1):
                 PARAMS['vwshprob_mean'] = i
                 PARAMS['vwshprob_stdv'] = j
-                #comparison_stats = CG.compare_graphs(PARAMS)
+                comparison_stats = CG.compare_graphs(PARAMS)
                 count += 1
                 dump_results (fp, PARAMS, comparison_stats, count)
         PARAMS['vwshprob_mean'] = STATVAR['vwshprob_mean'][3]
@@ -158,7 +159,7 @@ def run_simulation (sequence_number):
             for j in np.linspace(sb_start, sb_stop, num = int((sb_stop-sb_start)/sb_step)+1):
                 PARAMS['view_boost'] = i
                 PARAMS['share_boost'] = j
-                #comparison_stats = CG.compare_graphs(PARAMS)
+                comparison_stats = CG.compare_graphs(PARAMS)
                 count += 1
                 dump_results(fp, PARAMS, comparison_stats, count)
         PARAMS['view_boost'] = STATVAR['view_boost'][3]
@@ -170,7 +171,7 @@ def run_simulation (sequence_number):
         wt_step = STATVAR['weight_threshold'][2]
         for i in np.linspace(wt_start, wt_stop, num = int((wt_stop-wt_start)/wt_step)+1):
             PARAMS['weight_threshold'] = i
-            #comparison_stats = CG.compare_graphs(PARAMS)
+            comparison_stats = CG.compare_graphs(PARAMS)
             count += 1
             dump_results(fp, PARAMS, comparison_stats, count)
         PARAMS['weight_threshold'] = STATVAR['weight_threshold'][3]
@@ -186,11 +187,22 @@ def run_simulation (sequence_number):
             for j in np.linspace(cbs_start, cbs_stop, num = int((cbs_stop-cbs_start)/cbs_step)+1):
                 PARAMS['cmlb_view'] = i
                 PARAMS['cmlb_share'] = j
-                #comparison_stats = CG.compare_graphs(PARAMS)
+                comparison_stats = CG.compare_graphs(PARAMS)
                 count += 1
                 dump_results(fp, PARAMS, comparison_stats, count)
         PARAMS['cmlb_view'] = STATVAR['cmlb_view'][3]
         PARAMS['cmlb_share'] = STATVAR['cmlb_share'][3]
+
+        # Variation for sample size
+        start = STATVAR['sample_size'][0]
+        stop = STATVAR['sample_size'][1]
+        step = STATVAR['sample_size'][2]
+        for i in range ( start, stop+step, step ):
+            PARAMS['sample_size'] = i
+            comparison_stats = CG.compare_graphs(PARAMS)
+            count += 1
+            dump_results (fp, PARAMS, comparison_stats, count)
+        PARAMS['sample_size'] = STATVAR['sample_size'][3]    
 
     fp.close()
 
