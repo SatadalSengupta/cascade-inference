@@ -1,8 +1,9 @@
 import os
 import generate_graphs as GG
-import simulation_properties as SP
 import introduce_content as IC
 import random
+import run_all_simulations as RAS
+from verbose_display import display
 
 #########################################
 
@@ -12,23 +13,27 @@ def get_content_level (levels):
 
 #########################################
 
-def introduce_all_content (Gcomplete, content_count):
+def introduce_all_content (Gcomplete, PARAMS):
 
     EF = []
+    content_count = PARAMS['content_count']
+    content_levels = PARAMS['content_levels']
 
     for i in range(content_count):
-        content_level = get_content_level(SP.CONTENT_LEVELS)
-        EFlocal = IC.introduce_content (Gcomplete, content_level)
+        content_level = get_content_level(content_levels)
+        EFlocal = IC.introduce_content (Gcomplete, content_level, PARAMS)
         EF.extend(EFlocal)
+        display("introduce_all_content", "Current content: "+str(i+1)+" out of "+str(content_count))
 
     return EF
 
 #########################################
 
 def main():
-    Gbase, Gcomplete = GG.generate_graphs(SP.SAMPLE_SIZE,SP.MEAN,SP.SD,SP.VIEW_BOOST,SP.SHARE_BOOST)
-    EF = introduce_all_content (Gcomplete, SP.CONTENT_COUNT)
-    #print len(EF)
+    params = RAS.load_parameters_for_test_run()
+    Gbase, Gcomplete = GG.generate_graphs(params)
+    EF = introduce_all_content (Gcomplete, params)
+    # print len(EF)
     return
 
 #########################################

@@ -2,10 +2,10 @@ import os
 from verbose_display import display
 import networkx as nx
 import generate_graphs as GG
-import simulation_properties as SP
 import introduce_all_content as IAC
 from collections import Counter
 import numpy as np
+import run_all_simulations as RAS
 
 ############################################
 
@@ -36,16 +36,16 @@ def impose_weight_restriction (weighted_edges, weight_threshold):
 
 ############################################
 
-def get_weight_threshold (weighted_edges, weight_threshold):
+def get_weight_threshold (weighted_edges, PARAMS):
 
     weights = [int(edge[2]) for edge in weighted_edges]
     mean = np.mean(weights)
     std = np.std(weights)
     #print weights
-    print "Mean: "+str(mean)+", Std: "+str(std)
-    std_x = float(weight_threshold)
+    #print "Mean: "+str(mean)+", Std: "+str(std)
+    std_x = float(PARAMS['weight_threshold'])
     th = int(round(mean+(std*std_x),0))
-    print "Threshold: "+str(th)
+    #print "Threshold: "+str(th)
 
     return th
 
@@ -72,30 +72,38 @@ def get_directed_graph(weighted_edges_filtered):
 
 ############################################
 
-def infer_graph (Gcomplete, run_count):
+def infer_graph (Gcomplete, PARAMS):
 
     EFAll = []
+    run_count = PARAMS['run_count']
     
     for i in range(run_count):
-        EF = IAC.introduce_all_content (Gcomplete, SP.CONTENT_COUNT)
+        EF = IAC.introduce_all_content (Gcomplete, PARAMS)
         EFAll.extend(EF)
 
     weighted_edges = combine_event_forests (EFAll)
-    weight_threshold = get_weight_threshold (weighted_edges, SP.WEIGHT_THRESHOLD)
+    display("infer_graph", "Obtained weighted edges from forest.")
+    weight_threshold = get_weight_threshold (weighted_edges, PARAMS)
+    display("infer_graph", "Obtain weight threshold.")
     weighted_edges_filtered = impose_weight_restriction (weighted_edges, weight_threshold)
+    display("infer_graph", "Imposed weight restriction.")
     
     Ginferred_weighted_directed = get_weighted_graph(weighted_edges_filtered)
+    display("infer_graph", "Obtained weighted directed graph.")
     Ginferred_directed = get_directed_graph(weighted_edges_filtered)
+    display("infer_graph", "Obtained directed graph.")
     Ginferred = Ginferred_directed.to_undirected()
+    display("infer_graph", "Obtained final inferred graph.")
     
     return Ginferred
 
 ############################################
 
 def main():
-    Gbase, Gcomplete = GG.generate_graphs()
-    Ginferred = infer_graph (Gcomplete, SP.RUN_COUNT)
-    #print Ginferred.edge
+    params = RAS.load_parameters_for_test_run()
+    Gbase, Gcomplete = GG.generate_graphs(params)
+    Ginferred = infer_graph (Gcomplete, params)
+    GG.draw_graph(Ginferred,"Ginferred")
     return
 
 ############################################
