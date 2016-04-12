@@ -5,5 +5,4 @@ test.py
 test_graph.txt
 *_simulation_properties.py
 *.ps
-degree_distribution.py
 log_*.txt
