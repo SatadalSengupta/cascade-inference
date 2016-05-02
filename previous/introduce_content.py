@@ -1,6 +1,6 @@
 import os
 import generate_graphs as GG
-from utilities import display
+from verbose_display import display
 import networkx as nx
 import random
 from collections import defaultdict, deque
@@ -155,7 +155,7 @@ def get_no_of_points_of_intro (size):
 
 ######################################################
 
-def introduce_content (Gfriendship, contentId, contentLevel, parameters):   
+def introduce_content (Gcomplete, content_level, parameters):
 
     EFlocal = []
     global PARAMS

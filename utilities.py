@@ -18,8 +18,25 @@ def display(fnc,text):
 
 ##################################################
 
+def clearEventLog():
+    os.remove(os.path.join("resource","event_timeline.txt"))
+
+##################################################
+
+def logEvent (eventId):
+
+    with open(os.path.join("resource","event_timeline.txt"), "a") as fp:
+        time = dt.now()
+        fp.write(str(time))
+        fp.write(",")
+        fp.write(str(eventId))
+        fp.write("\n")
+
+##################################################
+
 def main():
-    display("Hello World")
+    #display("Hello World")
+    logEvent("12345")
     return
 
 ##################################################
