@@ -37,6 +37,9 @@ def logEvent (eventId):
 def main():
     #display("Hello World")
     logEvent("12345")
+    logEvent("234")
+    for i in range(10):
+        logEvent(str(i))
     return
 
 ##################################################

@@ -1,6 +1,6 @@
 import os
 import generate_graphs as GG
-from utilities import display
+import utilities as util
 import networkx as nx
 import random
 from collections import defaultdict, deque
@@ -75,17 +75,14 @@ def get_share_prob (G, child, parent, not_shared, content_level):
 
 ######################################################
 
-def introduce_for_node (Gcomplete, node_id, content_level):
+def introduce_for_node (G, node_id, content_level):
 
-    #ET = bfs_tree (Gcomplete, node_id, content_level)
-    ET = nx.DiGraph()
-    G = Gcomplete
+    # G: Friendship graph
     source = node_id
-    ET.add_node(source)
     visited = []
     visited.append(source)
-    not_viewed_for = {i: [] for i in range(G.number_of_nodes())}
-    not_shared_for = {i: [] for i in range(G.number_of_nodes())}
+-    not_viewed_for = {i: [] for i in range(G.number_of_nodes())}
+-    not_shared_for = {i: [] for i in range(G.number_of_nodes())}
     next_sources = []
     next_sources.append(source)
 
@@ -125,7 +122,7 @@ def introduce_for_node (Gcomplete, node_id, content_level):
                     not_shared_for[neighbor].append(source)
                     # display("introduce_for_node", "Not viewed for "+str(neighbor)+" with prob "+str(view_prob))
 
-    return ET
+    return
 
 ######################################################
 
@@ -135,13 +132,13 @@ def get_next_point_of_intro (size):
 
 ######################################################
 
-def get_points_of_intro (Gcomplete, no_of_points):
+def get_points_of_intro (Gfriendship, no_of_points):
 
-    display("get_points_of_intro","No. of points of introduction: "+str(no_of_points))
+    #util.display("get_points_of_intro","No. of points of introduction: "+str(no_of_points))
     points_of_intro = []
     
     for i in range(no_of_points):
-        points_of_intro.append(get_next_point_of_intro(Gcomplete.number_of_nodes()))
+        points_of_intro.append(get_next_point_of_intro(Gfriendship.number_of_nodes()))
     # display("get_points_of_intro", "Points of introduction: "+str(points_of_intro))   
  
     return points_of_intro
@@ -157,19 +154,17 @@ def get_no_of_points_of_intro (size):
 
 def introduce_content (Gfriendship, contentId, contentLevel, parameters):   
 
-    EFlocal = []
     global PARAMS
     PARAMS = parameters
-    points_of_intro = get_points_of_intro (Gcomplete, get_no_of_points_of_intro(Gcomplete.number_of_nodes()))
+    points_of_intro = get_points_of_intro (Gfriendship, get_no_of_points_of_intro(Gfriendship.number_of_nodes()))
     
     count = 0
     for point in points_of_intro:
-        ET = introduce_for_node (Gcomplete, point, content_level)
-        EFlocal.append(ET)
+        introduce_for_node (Gfriendship, point, content_level)
         count += 1
-        display("introduce_content", "Current POI count: "+str(count)+" out of "+str(len(points_of_intro)))
+        #util.display("introduce_content", "Current POI count: "+str(count)+" out of "+str(len(points_of_intro)))
 
-    return EFlocal
+    return
 
 ######################################################
 
