@@ -23,13 +23,18 @@ def clearEventLog():
 
 ##################################################
 
-def logEvent (eventId):
+def logEvent (content_id, isView):
 
     with open(os.path.join("resource","event_timeline.txt"), "a") as fp:
         time = dt.now()
         fp.write(str(time))
         fp.write(",")
-        fp.write(str(eventId))
+        fp.write(str(content_id))
+        fp.write(",")
+        if isView:
+            fp.write("view")
+        else:
+            fp.write("share")
         fp.write("\n")
 
 ##################################################

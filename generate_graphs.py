@@ -7,45 +7,12 @@ from operator import itemgetter as itg
 #from statistics import median
 import numpy as np
 import simulation_properties as SP
-from verbose_display import display
+from utilities import display
 import run_all_simulations as RAS
 
 path_prefix = SP.CWD
 
-##################################################
-
-def filter_edgelist (PARAMS, node_list):
-    
-    ifp = open(os.path.join(path_prefix,PARAMS['dataset']),"r")
-    ofp = open(os.path.join(path_prefix,PARAMS['sampled_dataset']),"w")
-    edges = ifp.readlines()
-    ifp.close()
-
-    count = 0
-    mapping = {}
-    for node in node_list:
-        mapping[node] = count
-        count += 1
-    display("filter_edgelist","Created mapping for nodes for " + str(count) + " nodes.")
-
-    writelines = ""
-
-    cedge = 0
-    cmatch = 0
-    for edge in edges:
-        cedge += 1
-        tokens = edge.rstrip().split(" ")
-        if (int(tokens[0]) in node_list) and (int(tokens[1]) in node_list):
-            writelines += str(mapping[int(tokens[0])]) + " " + str(mapping[int(tokens[1])]) + "\n"
-            cmatch += 1
-
-    ofp.write(writelines)
-    ofp.close()
-    display("filter_edgelist", "The edge-list corresponding to filtered node-list with " + str(cedge) + " edges and " + str(cmatch) + " matching edges.")
-    
-    return
-
-##################################################
+#################################################
 
 def draw_graph(graph,title):
     graph_gvz = nx.to_agraph(graph)
@@ -55,24 +22,24 @@ def draw_graph(graph,title):
 
 ##################################################
 
-def assign_probabilities(Gcomplete,mean,sd):
+def assign_probabilities(Gfriendship,mean,sd):
     
     #Assign viewing probability to each node
-    no_of_nodes = nx.number_of_nodes(Gcomplete)
-    temp=[]
-    for n in range(0,no_of_nodes):
-        for m in range(0,no_of_nodes):
-            temp.append(random.gauss(mean,sd))
-        Gcomplete.node[n]['Pview']=temp
-        temp=[]
+    #no_of_nodes = nx.number_of_nodes(Gfriendship)
+    temp={}
+    for head in Gfriendship.node:
+        for tail in Gfriendship.neighbors(head):
+            temp[tail] = random.gauss(mean,sd)
+        Gfriendship.node[head]['Pview']=temp
+        temp={}
 
     #Assign sharing probability to each node
-    temp = []
-    for n in range(0, no_of_nodes):
-        for m in range(0, no_of_nodes):
-            temp.append(random.gauss(mean,sd))
-        Gcomplete.node[n]['Pshare']=temp
-        temp=[]
+    temp = {}
+    for head in Gfriendship.node:
+        for tail in Gfriendship.neighbors(head):
+            temp[tail] = random.gauss(mean,sd)
+        Gfriendship.node[head]['Pshare']=temp
+        temp={}
 
     return
 
@@ -133,7 +100,7 @@ def boost_view_share_probabilities(Gcomplete,Gbase,view_boost,share_boost):
     return count
 
 ##################################################
-
+'''
 def get_filtered_nodes (Goriginal, PARAMS):
 
     size = PARAMS['sample_size']
@@ -162,7 +129,7 @@ def get_filtered_nodes (Goriginal, PARAMS):
     display("get_filtered_nodes", "Sampling done using "+sample_using+"; node list size is "+str(len(node_list))+".")
 
     return node_list
-
+'''
 ##################################################
 
 #def complete_graph_from_list(L, create_using=None):
@@ -177,45 +144,49 @@ def get_filtered_nodes (Goriginal, PARAMS):
 
 def generate_graphs (PARAMS):
 
-    filter_count = PARAMS['sample_size']
+    #filter_count = PARAMS['sample_size']
     mean = PARAMS['vwshprob_mean']
     sd = PARAMS['vwshprob_stdv']
     view_boost = PARAMS['view_boost']
     share_boost = PARAMS['share_boost']
     
-    Goriginal = nx.read_edgelist(os.path.join(path_prefix,PARAMS['dataset']), nodetype=int)
-    display("generate_graphs", "Prepared Goriginal from entire dataset.")
-    filtered_nodelist = get_filtered_nodes (Goriginal, PARAMS)
-    display("generate_graphs", "Received filtered node list from get_filtered_nodes().")
+    #Goriginal = nx.read_edgelist(os.path.join(path_prefix,PARAMS['dataset']), nodetype=int)
+    #display("generate_graphs", "Prepared Goriginal from entire dataset.")
+    #filtered_nodelist = get_filtered_nodes (Goriginal, PARAMS)
+    #display("generate_graphs", "Received filtered node list from get_filtered_nodes().")
 
-    filter_edgelist(PARAMS,filtered_nodelist)
-    display("generate_graphs", "Filtered edge list recorded in sampled dataset.")
-    Gbase = nx.read_edgelist(os.path.join(path_prefix,PARAMS['sampled_dataset']), nodetype=int)
-    display("generate_graphs", "Prepared Gbase from sampled dataset.")
+    #filter_edgelist(PARAMS,filtered_nodelist)
+    #display("generate_graphs", "Filtered edge list recorded in sampled dataset.")
+    #Gbase = nx.read_edgelist(os.path.join(path_prefix,PARAMS['sampled_dataset']), nodetype=int)
+    #display("generate_graphs", "Prepared Gbase from sampled dataset.")
 
-    Gcomplete = nx.complete_graph(nx.number_of_nodes(Gbase))
-    display("generate_graphs", "Prepared Gcomplete from sampled dataset.")
+    #Gcomplete = nx.complete_graph(nx.number_of_nodes(Gbase))
+    #display("generate_graphs", "Prepared Gcomplete from sampled dataset.")
 
-    assign_probabilities(Gcomplete,mean,sd)
-    display("generate_graphs", "Assigned probabilities to all nodes.")
+    Gfriendship = nx.read_edgelist(os.path.join(path_prefix,"resource","facebook.txt"),nodetype=int)
 
-    edges_matched = boost_view_share_probabilities(Gcomplete,Gbase,view_boost,share_boost)
-    display("generate_graphs", "Boosted view and share probabilities, number of matched edges is "+str(edges_matched))
+    assign_probabilities(Gfriendship,mean,sd)
+    print Gfriendship
+    #display("generate_graphs", "Assigned probabilities to all nodes.")
 
-    return Gbase, Gcomplete
+    #edges_matched = boost_view_share_probabilities(Gcomplete,Gbase,view_boost,share_boost)
+    #display("generate_graphs", "Boosted view and share probabilities, number of matched edges is "+str(edges_matched))
+
+    return Gfriendship
 
 ##################################################
 
 def main():
     params = RAS.load_parameters_for_test_run()
-    params['sampling_technique'] = "DegreeMin"
-    Gbase, Gcomplete = generate_graphs (params)
+    print params
+    #params['sampling_technique'] = "DegreeMin"
+    Gfriendship = generate_graphs (params)
     # display("generate_graphs:main", "Gbase node-list: " + str(Gbase.node))
     # display("generate_graphs:main", "Gbase edge-list: " + str(Gbase.edge))
     # display("generate_graphs:main", "Gcomplete node-list: " + str(Gcomplete.node))
     # display("generate_graphs:main", "Gcomplete edge-list: " + str(Gcomplete.edge))
-    draw_graph(Gbase,"Gbase")
-    draw_graph(Gcomplete,"Gcomplete")
+    #draw_graph(Gbase,"Gbase")
+    #draw_graph(Gcomplete,"Gcomplete")
     return
 
 ##################################################
