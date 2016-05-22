@@ -163,10 +163,13 @@ def generate_graphs (PARAMS):
     #Gcomplete = nx.complete_graph(nx.number_of_nodes(Gbase))
     #display("generate_graphs", "Prepared Gcomplete from sampled dataset.")
 
-    Gfriendship = nx.read_edgelist(os.path.join(path_prefix,"resource","facebook.txt"),nodetype=int)
-
+    Gfriendship = nx.read_edgelist(os.path.join(path_prefix,"resource","facebook.txt"), nodetype=int)
+    #print Gfriendship.edge[1]
     assign_probabilities(Gfriendship,mean,sd)
-    print Gfriendship
+    #print Gfriendship.node[1]
+
+    #fp = open(os.path.join(path_prefix,"resource","facebook.txt"))
+    #print fp.readlines()
     #display("generate_graphs", "Assigned probabilities to all nodes.")
 
     #edges_matched = boost_view_share_probabilities(Gcomplete,Gbase,view_boost,share_boost)
@@ -178,14 +181,15 @@ def generate_graphs (PARAMS):
 
 def main():
     params = RAS.load_parameters_for_test_run()
-    print params
+    #print params
     #params['sampling_technique'] = "DegreeMin"
     Gfriendship = generate_graphs (params)
+    #print Gfriendship.node[2048]
     # display("generate_graphs:main", "Gbase node-list: " + str(Gbase.node))
     # display("generate_graphs:main", "Gbase edge-list: " + str(Gbase.edge))
     # display("generate_graphs:main", "Gcomplete node-list: " + str(Gcomplete.node))
     # display("generate_graphs:main", "Gcomplete edge-list: " + str(Gcomplete.edge))
-    #draw_graph(Gbase,"Gbase")
+    #draw_graph(Gfriendship,"Gfriendship")
     #draw_graph(Gcomplete,"Gcomplete")
     return
 

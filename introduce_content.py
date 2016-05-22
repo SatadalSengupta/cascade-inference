@@ -5,6 +5,7 @@ import networkx as nx
 import random
 from collections import defaultdict, deque
 import run_all_simulations as RAS
+import datetime
 
 ######################################################
 
@@ -106,14 +107,14 @@ def introduce_for_node (G, node_id, content_level, content_id):
 
                 if should_child_view(view_prob):
                     #ET.add_edge(source,neighbor)
-                    util.logEvent(contentId,True)
+                    util.logEvent(neighbor,content_id,True)
                     visited.append(neighbor)
                     # display("introduce_for_node", "Viewed for "+str(neighbor)+" with prob "+str(view_prob))
     
                     share_prob = get_share_prob(G, neighbor, source, content_level)
 
                     if should_child_share(share_prob):
-                        util.logEvent(contentId,False)
+                        util.logEvent(neighbor,content_id,False)
                         next_sources.append(neighbor)
                         # display("introduce_for_node", "Shared for "+str(neighbor)+" with prob "+str(share_prob))
                     #else:

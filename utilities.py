@@ -23,11 +23,13 @@ def clearEventLog():
 
 ##################################################
 
-def logEvent (content_id, isView):
+def logEvent (node_id, content_id, isView):
 
     with open(os.path.join("resource","event_timeline.txt"), "a") as fp:
         time = dt.now()
         fp.write(str(time))
+        fp.write(",")
+        fp.write(str(node_id))
         fp.write(",")
         fp.write(str(content_id))
         fp.write(",")
