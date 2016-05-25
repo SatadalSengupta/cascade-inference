@@ -26,8 +26,9 @@ def generate_timeline (PARAMS):
         content_level = get_content_level(content_levels)
         IC.introduce_content (Gfriendship, content_level, PARAMS)
         #EF.extend(EFlocal)
-        util.display("introduce_all_content", "Current content: "+str(i+1)+" out of "+str(content_count))
-
+        #util.display("introduce_all_content", "Current content: "+str(i+1)+" out of "+str(content_count))
+        print "Current content: "+str(i+1)+" out of "+str(content_count)
+        
     return
 
 #########################################
