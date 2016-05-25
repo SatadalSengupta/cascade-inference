@@ -5,4 +5,5 @@ test.py
 test_graph.txt
 *_simulation_properties.py
 *.ps
-log_*.txt
+log*.txt
+resource/event_timeline*.txt
