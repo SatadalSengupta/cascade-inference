@@ -3,7 +3,7 @@ import simulation_properties as SP
 import numpy as np
 import os
 from datetime import datetime
-from utilities import display
+from utilities import *
 
 ############################################################
 
@@ -45,8 +45,8 @@ def load_all_properties():
     STATVAR['content_count'] = SP.CONTENT_COUNT
     STATVAR['vwshprob_mean'] = SP.VWSHPROB_MEAN
     STATVAR['vwshprob_stdv'] = SP.VWSHPROB_STDV
-    STATVAR['view_boost'] = SP.VIEW_BOOST
-    STATVAR['share_boost'] = SP.SHARE_BOOST
+    #STATVAR['view_boost'] = SP.VIEW_BOOST
+    #STATVAR['share_boost'] = SP.SHARE_BOOST
     #STATVAR['weight_threshold'] = SP.WEIGHT_THRESHOLD
     STATVAR['cmlb_view'] = SP.CONTENT_MINLVL_BOOST_VIEW
     STATVAR['cmlb_share'] = SP.CONTENT_MINLVL_BOOST_SHARE
@@ -66,8 +66,8 @@ def load_default_properties(PARAMS):
     PARAMS['content_count'] = SP.CONTENT_COUNT[3]
     PARAMS['vwshprob_mean'] = SP.VWSHPROB_MEAN[3]
     PARAMS['vwshprob_stdv'] = SP.VWSHPROB_STDV[3]
-    PARAMS['view_boost'] = SP.VIEW_BOOST[3]
-    PARAMS['share_boost'] = SP.SHARE_BOOST[3]
+    #PARAMS['view_boost'] = SP.VIEW_BOOST[3]
+    #PARAMS['share_boost'] = SP.SHARE_BOOST[3]
     #PARAMS['weight_threshold'] = SP.WEIGHT_THRESHOLD[3]
     PARAMS['cmlb_view'] = SP.CONTENT_MINLVL_BOOST_VIEW[3]
     PARAMS['cmlb_share'] = SP.CONTENT_MINLVL_BOOST_SHARE[3]
@@ -115,6 +115,7 @@ def generate_all_timelines ():
     count = 0    
 
     PARAMS, ALLVAR, STATVAR = load_all_properties()
+    PARAMS["relevant_nodes"] = getRelevantNodes()
 
     # Fake comparison_stats for testing; comment this in actual runs, and uncomment CG.compare_graphs() calls
     # comparison_stats = fake_comparison_stats_fill()
@@ -136,8 +137,10 @@ def generate_all_timelines ():
             #comparison_stats = CG.compare_graphs(PARAMS)
             GT.generate_timeline(PARAMS)
             count += 1
+            print("Generate Timelines: "+str(count)+" out of 193")
             #dump_results (fp, PARAMS, comparison_stats, count)
         PARAMS['content_count'] = STATVAR['content_count'][3]
+        print ("COUNT: "+str(count))
 
         # Variation for view-share probability mean and standard deviation
         mn_start = STATVAR['vwshprob_mean'][0]
@@ -151,29 +154,31 @@ def generate_all_timelines ():
                 PARAMS['vwshprob_mean'] = i
                 PARAMS['vwshprob_stdv'] = j
                 #comparison_stats = CG.compare_graphs(PARAMS)
-                GT.generate_timeline(PARAMS)
+                #GT.generate_timeline(PARAMS)
                 count += 1
+                print("Generate Timelines: "+str(count)+" out of 193")
                 #dump_results (fp, PARAMS, comparison_stats, count)
         PARAMS['vwshprob_mean'] = STATVAR['vwshprob_mean'][3]
         PARAMS['vwshprob_stdv'] = STATVAR['vwshprob_stdv'][3]
+        print ("COUNT: "+str(count))
 
         # Variation of view and share probability boost values
-        vb_start = STATVAR['view_boost'][0]
-        vb_stop = STATVAR['view_boost'][1]
-        vb_step = STATVAR['view_boost'][2]
-        sb_start = STATVAR['share_boost'][0]
-        sb_stop = STATVAR['share_boost'][1]
-        sb_step = STATVAR['share_boost'][2]
-        for i in np.linspace(vb_start, vb_stop, num = int((vb_stop-vb_start)/vb_step)+1):
-            for j in np.linspace(sb_start, sb_stop, num = int((sb_stop-sb_start)/sb_step)+1):
-                PARAMS['view_boost'] = i
-                PARAMS['share_boost'] = j
-                #comparison_stats = CG.compare_graphs(PARAMS)
-                GT.generate_timeline(PARAMS)
-                count += 1
+        #vb_start = STATVAR['view_boost'][0]
+        #vb_stop = STATVAR['view_boost'][1]
+        #vb_step = STATVAR['view_boost'][2]
+        #sb_start = STATVAR['share_boost'][0]
+        #sb_stop = STATVAR['share_boost'][1]
+        #sb_step = STATVAR['share_boost'][2]
+        #for i in np.linspace(vb_start, vb_stop, num = int((vb_stop-vb_start)/vb_step)+1):
+        #    for j in np.linspace(sb_start, sb_stop, num = int((sb_stop-sb_start)/sb_step)+1):
+        #        PARAMS['view_boost'] = i
+        #        PARAMS['share_boost'] = j
+        #        #comparison_stats = CG.compare_graphs(PARAMS)
+        #        GT.generate_timeline(PARAMS)
+        #        count += 1
                 #dump_results(fp, PARAMS, comparison_stats, count)
-        PARAMS['view_boost'] = STATVAR['view_boost'][3]
-        PARAMS['share_boost'] = STATVAR['share_boost'][3]
+        #PARAMS['view_boost'] = STATVAR['view_boost'][3]
+        #PARAMS['share_boost'] = STATVAR['share_boost'][3]
 
         # Variation of weight_threshold
         '''wt_start = STATVAR['threshold'][0]
@@ -199,11 +204,13 @@ def generate_all_timelines ():
                 PARAMS['cmlb_view'] = i
                 PARAMS['cmlb_share'] = j
                 #comparison_stats = CG.compare_graphs(PARAMS)
-                GT.generate_timeline(PARAMS)
+                #GT.generate_timeline(PARAMS)
+                print("Generate Timelines: "+str(count)+" out of 193")
                 count += 1
                 #dump_results(fp, PARAMS, comparison_stats, count)
         PARAMS['cmlb_view'] = STATVAR['cmlb_view'][3]
         PARAMS['cmlb_share'] = STATVAR['cmlb_share'][3]
+        print ("COUNT: "+str(count))
 
         # Variation for sample size
         #start = STATVAR['sample_size'][0]
@@ -217,7 +224,8 @@ def generate_all_timelines ():
         #PARAMS['sample_size'] = STATVAR['sample_size'][3]    
 
     #fp.close()
-    display("generate_all_timelines", str(count))
+    #display("generate_all_timelines", str(count))
+    #print count
 
     return
 

@@ -78,7 +78,7 @@ def sanitize_prob (Gcomplete):
     return
 
 ##################################################
-
+'''
 def boost_view_share_probabilities(Gcomplete,Gbase,view_boost,share_boost):
     
     count = 0
@@ -98,7 +98,7 @@ def boost_view_share_probabilities(Gcomplete,Gbase,view_boost,share_boost):
     display("boost_view_share_probabilities", "Sanitized probability values > 1 and < 0.")
 
     return count
-
+'''
 ##################################################
 '''
 def get_filtered_nodes (Goriginal, PARAMS):
@@ -147,8 +147,8 @@ def generate_graphs (PARAMS):
     #filter_count = PARAMS['sample_size']
     mean = PARAMS['vwshprob_mean']
     sd = PARAMS['vwshprob_stdv']
-    view_boost = PARAMS['view_boost']
-    share_boost = PARAMS['share_boost']
+    #view_boost = PARAMS['view_boost']
+    #share_boost = PARAMS['share_boost']
     
     #Goriginal = nx.read_edgelist(os.path.join(path_prefix,PARAMS['dataset']), nodetype=int)
     #display("generate_graphs", "Prepared Goriginal from entire dataset.")

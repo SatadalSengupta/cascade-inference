@@ -76,7 +76,7 @@ def get_share_prob (G, child, parent, content_level):
 
 ######################################################
 
-def introduce_for_node (G, node_id, content_level, content_id):
+def introduce_for_node (G, node_id, content_level, content_id, relevantNodes):
 
     # G: Friendship graph
     #contentId = get_content_id(content_level)
@@ -107,14 +107,16 @@ def introduce_for_node (G, node_id, content_level, content_id):
 
                 if should_child_view(view_prob):
                     #ET.add_edge(source,neighbor)
-                    util.logEvent(neighbor,content_id,True)
+                    if neighbor in relevantNodes:
+                        util.logEvent(PARAMS,neighbor,content_id,True)
                     visited.append(neighbor)
                     # display("introduce_for_node", "Viewed for "+str(neighbor)+" with prob "+str(view_prob))
     
                     share_prob = get_share_prob(G, neighbor, source, content_level)
 
                     if should_child_share(share_prob):
-                        util.logEvent(neighbor,content_id,False)
+                        if neighbor in relevantNodes:
+                            util.logEvent(PARAMS,neighbor,content_id,False)
                         next_sources.append(neighbor)
                         # display("introduce_for_node", "Shared for "+str(neighbor)+" with prob "+str(share_prob))
                     #else:
@@ -161,11 +163,13 @@ def introduce_content (Gfriendship, contentLevel, parameters):
     global PARAMS
     PARAMS = parameters
     points_of_intro = get_points_of_intro (Gfriendship, get_no_of_points_of_intro(Gfriendship.number_of_nodes()))
+    print ("No. of points of introduction: "+str(len(points_of_intro)))
 
     contentId = datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')
     count = 0
     for point in points_of_intro:
-        introduce_for_node (Gfriendship, point, contentLevel, contentId)
+        print ("Introducing for point no.: "+str(count+1)+" of "+str(len(points_of_intro)))
+        introduce_for_node (Gfriendship, point, contentLevel, contentId, PARAMS["relevant_nodes"])
         count += 1
         #util.display("introduce_content", "Current POI count: "+str(count)+" out of "+str(len(points_of_intro)))
 

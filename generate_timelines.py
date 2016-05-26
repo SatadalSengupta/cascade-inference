@@ -16,6 +16,11 @@ def get_content_level (levels):
 
 def generate_timeline (PARAMS):
 
+    event_string = util.build_event_string(PARAMS)
+    PARAMS["event_string"] = event_string
+    fp = open(os.path.join("timelines","event_timeline"+event_string+".txt"),"wb")
+    PARAMS["event_timeline_file"] = fp
+
     Gfriendship = GG.generate_graphs(PARAMS)
 
     # EF = []
@@ -24,6 +29,7 @@ def generate_timeline (PARAMS):
 
     for i in range(content_count):
         content_level = get_content_level(content_levels)
+        #relevantNodes = util.getRelevantNodes()
         IC.introduce_content (Gfriendship, content_level, PARAMS)
         #EF.extend(EFlocal)
         #util.display("introduce_all_content", "Current content: "+str(i+1)+" out of "+str(content_count))
