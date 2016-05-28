@@ -12,7 +12,7 @@ POI_STDV = 0.079 # 7.9% of Sample Size
 
 ### VARIABLE PROPERTIES VARIED WHILE OTHER PROPERTIES ARE CONSTANT ###
 
-CONTENT_COUNT = [ 100, 1000, 100, 200 ] # The format is [StartValue, EndValue, Step, ValueWhenStatic]
+CONTENT_COUNT = [ 500, 10000, 500, 1000 ] # The format is [StartValue, EndValue, Step, ValueWhenStatic]
 
 VWSHPROB_MEAN = [ 0.3, 0.7, 0.1, 0.5 ] # The format is [StartValue, EndValue, Step, ValueWhenStatic]
 VWSHPROB_STDV = [ 0.10, 0.20, 0.05, 0.15 ] # The format is [StartValue, EndValue, Step, ValueWhenStatic]
@@ -22,8 +22,8 @@ VWSHPROB_STDV = [ 0.10, 0.20, 0.05, 0.15 ] # The format is [StartValue, EndValue
 
 #WEIGHT_THRESHOLD = [ 1.0, 5.0, 0.5, 2.5 ] # Threshold = Mean + (Std * WEIGHT_THRESHOLD)
 
-CONTENT_MINLVL_BOOST_VIEW = [ 0.0, 0.8, 0.2, 0.4 ] # Level-X Boost = Level-Min Boost + 0.2*(X-1)
-CONTENT_MINLVL_BOOST_SHARE = [ 0.0, 0.8, 0.2, 0.4 ] # Level-X Boost = Level-Min Boost + 0.2*(X-1)
+CONTENT_MINLVL_BOOST_VIEW = [ 0.0, 0.8, 0.1, 0.3 ] # Level-X Boost = Level-Min Boost + 0.2*(X-1)
+CONTENT_MINLVL_BOOST_SHARE = [ 0.0, 0.8, 0.1, 0.3 ] # Level-X Boost = Level-Min Boost + 0.2*(X-1)
 
 ### COMPARISON MODULE ###
 

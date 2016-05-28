@@ -36,7 +36,7 @@ def build_event_string(PARAMS):
     return event_string
 
 ##################################################
-
+'''
 def isNodeRelevant (node_id):
     isNodeRelevant = False
     fbMaxEdgeDensityNodes = pickle.load(open(os.path.join("resource","facebook_max_edge_density.nodes"),"rb"))
@@ -44,24 +44,21 @@ def isNodeRelevant (node_id):
     if (node_id in fbMaxEdgeDensityNodes) or (node_id in fbMaxSizeNodes):
         isNodeRelevant = True
     return isNodeRelevant
-
+'''
 ##################################################
 
-def getRelevantNodes():
-    fbMaxEdgeDensityNodes = pickle.load(open(os.path.join("resource","facebook_max_edge_density.nodes"),"rb"))
-    fbMaxSizeNodes = pickle.load(open(os.path.join("resource","facebook_max_size.nodes"),"rb"))
-    relevantNodes = []
-    for n in fbMaxSizeNodes:
-        relevantNodes.append(n)
-    for n in fbMaxEdgeDensityNodes:
-        relevantNodes.append(n)
+def getRelevantNodes(PARAMS):
+    if PARAMS['compare_with']=="MaxSize":
+        relevantNodes = set(pickle.load(open(os.path.join("resource","facebook_max_size.nodes"),"rb")))
+    elif PARAMS['compare_with']=="MaxEdgeDensity":
+        relevantNodes = set(pickle.load(open(os.path.join("resource","facebook_max_edge_density.nodes"),"rb")))
     return relevantNodes
 
 ##################################################
 
 def logEvent (PARAMS, node_id, content_id, isView):
     
-    fp = PARAMS["event_timeline_file"]
+    fp = PARAMS['event_timeline_file']
     time = dt.now()
     fp.write(str(time))
     fp.write(",")

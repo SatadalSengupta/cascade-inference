@@ -6,6 +6,7 @@ import random
 from collections import defaultdict, deque
 import run_all_simulations as RAS
 import datetime
+import timeit
 
 ######################################################
 
@@ -14,10 +15,8 @@ PARAMS = {}
 ######################################################
 
 def get_content_boost (content_level):
-
     view_boost = PARAMS['cmlb_view'] + (0.2*(content_level-1))
     share_boost = PARAMS['cmlb_share'] + (0.2*(content_level-1))
-   
     return view_boost, share_boost
 
 ######################################################
@@ -34,99 +33,61 @@ def should_child_share (share_prob):
 
 ######################################################
 
-def get_view_prob (G, child, parent, content_level):
-    
-    # display("get_view_prob","VIEW:: Node is "+str(child))
-
+def get_view_prob (G, child, parent, content_level): 
     view_prob = G.node[child]['Pview'][parent]
-    # display("get_view_prob", "VIEW:: Initial value: "+str(view_prob))
-
-    #for node in not_viewed:
-    #    view_prob *= (1.0 - G.node[child]['Pview'][node])
-        # display("get_view_prob", "VIEW:: Value now: "+str(view_prob)+" for source node "+str(node))
-
     view_boost, share_boost = get_content_boost(content_level)
     view_prob *= (1.0 + view_boost)
-    # display("get_view_prob", "VIEW:: Final value after content boost: "+str(view_prob))
-
     view_prob = view_prob if view_prob < 1.0 else 1.0
-
     return view_prob
 
 ######################################################
 
 def get_share_prob (G, child, parent, content_level):
-
-    # display("get_share_prob","SHARE:: Node is: "+str(child))
-    
     share_prob = G.node[child]['Pshare'][parent]
-    # display("get_share_prob", "SHARE:: Initial value: "+str(share_prob))
-
-    #for node in not_shared:
-    #    share_prob *= (1.0 - G.node[child]['Pshare'][node])
-        # display("get_share_prob", "SHARE:: Value now: "+str(share_prob)+" for source node "+str(node))
-
     view_boost, share_boost = get_content_boost(content_level)
     share_prob *= (1.0 + share_boost)
-    # display("get_share_prob", "SHARE:: Final value after content boost: "+str(share_prob))
-
     share_prob = share_prob if share_prob < 1.0 else 1.0
-
     return share_prob
 
 ######################################################
 
 def introduce_for_node (G, node_id, content_level, content_id, relevantNodes):
 
-    # G: Friendship graph
-    #contentId = get_content_id(content_level)
+    #start_time = timeit.default_timer()
     source = node_id
-    visited = []
-    visited.append(source)
-    #not_viewed_for = {i: [] for i in range(G.number_of_nodes())}
-    #not_shared_for = {i: [] for i in range(G.number_of_nodes())}
-    next_sources = []
-    next_sources.append(source)
+    visited = set([source])
+    next_sources = set([source])
+    if source in relevantNodes:
+        util.logEvent(PARAMS,source,content_id,False)
 
     while True:
         
-        if len(next_sources) == 0:
+        if not next_sources:
             break
         
-        current_sources = [i for i in next_sources]
-        next_sources = []
-        # display("introduce_for_node", "Sources for this iteration: "+str(current_sources))
+        current_sources = next_sources
+        next_sources = set()
+        viewed = set()
         
         for source in current_sources:
-            # display("introduce_for_node","Current source: "+str(source))
-            neighbors = [n for n in G.neighbors(source) if n not in visited]
-            # display("introduce_for_node", "Neighbors: "+str(neighbors))
-            
+            neighbors = set([n for n in G.neighbors(source) if n not in visited])
             for neighbor in neighbors:
                 view_prob = get_view_prob(G, neighbor, source, content_level)
-
                 if should_child_view(view_prob):
-                    #ET.add_edge(source,neighbor)
                     if neighbor in relevantNodes:
                         util.logEvent(PARAMS,neighbor,content_id,True)
-                    visited.append(neighbor)
-                    # display("introduce_for_node", "Viewed for "+str(neighbor)+" with prob "+str(view_prob))
-    
-                    share_prob = get_share_prob(G, neighbor, source, content_level)
+                    visited.add(neighbor)
+                    viewed.add(neighbor)
+            for neighbor in viewed:
+                share_prob = get_share_prob(G, neighbor, source, content_level)
+                if should_child_share(share_prob):
+                    if neighbor in relevantNodes:
+                        util.logEvent(PARAMS,neighbor,content_id,False)
+                    next_sources.add(neighbor)
+            viewed = set()
 
-                    if should_child_share(share_prob):
-                        if neighbor in relevantNodes:
-                            util.logEvent(PARAMS,neighbor,content_id,False)
-                        next_sources.append(neighbor)
-                        # display("introduce_for_node", "Shared for "+str(neighbor)+" with prob "+str(share_prob))
-                    #else:
-                        #not_shared_for[neighbor].append(source)
-                        # display("introduce_for_node", "Not shared for "+str(neighbor)+" with prob "+str(share_prob))
-
-                #else:
-                    #not_viewed_for[neighbor].append(source)
-                    #not_shared_for[neighbor].append(source)
-                    # display("introduce_for_node", "Not viewed for "+str(neighbor)+" with prob "+str(view_prob))
+    #elapsed = timeit.default_timer() - start_time
+    #print("Elapsed time: "+str(elapsed))
 
     return
 
@@ -162,14 +123,17 @@ def introduce_content (Gfriendship, contentLevel, parameters):
 
     global PARAMS
     PARAMS = parameters
+    #print (Gfriendship.number_of_nodes())
     points_of_intro = get_points_of_intro (Gfriendship, get_no_of_points_of_intro(Gfriendship.number_of_nodes()))
-    print ("No. of points of introduction: "+str(len(points_of_intro)))
+    #print ("No. of points of introduction: "+str(len(points_of_intro)))
+    #print ("Ratio: "+str(len(points_of_intro)*1.0/Gfriendship.number_of_nodes()))
+    points_of_intro = points_of_intro[0:1]
 
     contentId = datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')
     count = 0
     for point in points_of_intro:
-        print ("Introducing for point no.: "+str(count+1)+" of "+str(len(points_of_intro)))
-        introduce_for_node (Gfriendship, point, contentLevel, contentId, PARAMS["relevant_nodes"])
+        #print ("Introducing for point no.: "+str(count+1)+" of "+str(len(points_of_intro)))
+        introduce_for_node (Gfriendship, point, contentLevel, contentId, PARAMS['relevant_nodes'])
         count += 1
         #util.display("introduce_content", "Current POI count: "+str(count)+" out of "+str(len(points_of_intro)))
 
@@ -178,8 +142,8 @@ def introduce_content (Gfriendship, contentLevel, parameters):
 ######################################################
 
 def main():
-    Gbase, Gcomplete = GG.generate_graphs (RAS.load_parameters_for_test_run())
-    introduce_content (Gcomplete, random.randint(1,3), RAS.load_parameters_for_test_run())
+    Gfriendship = GG.generate_graphs (RAS.load_parameters_for_test_run())
+    introduce_content (Gfriendship, random.randint(1,3), RAS.load_parameters_for_test_run())
     # print EFlocal
     return
 

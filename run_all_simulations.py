@@ -4,6 +4,7 @@ import numpy as np
 import os
 from datetime import datetime
 from utilities import *
+import timeit
 
 ############################################################
 
@@ -11,7 +12,11 @@ def load_parameters_for_test_run():
 
     PARAMS, ALLVAR, STATVAR = load_all_properties()
     PARAMS = load_default_properties(PARAMS)
-    display("load_parameters_for_test_run", "Parameters loaded for test run.")
+    PARAMS['relevant_nodes'] = getRelevantNodes(PARAMS)
+    PARAMS['event_string'] = build_event_string(PARAMS)
+    fp = open(os.path.join("timelines","event_timeline"+PARAMS['event_string']+".txt"),"wb")
+    PARAMS['event_timeline_file'] = fp
+    #display("load_parameters_for_test_run", "Parameters loaded for test run.")
 
     return PARAMS
 
@@ -82,17 +87,15 @@ def dump_results (fp, PARAMS, comparison_stats, count):
 
     fmt = '{0:50} = {1}\n'
     writeline = ""
-    writeline += "RUN " + str(count) + " OUT OF ALL AT TIME: " + str(datetime.now()) + "\n\n"
-    #writeline += fmt.format("Sampling technique", str(PARAMS['sampling_technique']))
-    #writeline += fmt.format("Sample size", str(PARAMS['sample_size']))
+    writeline += "RUN " + str(count[0]) + " OUT OF " + str(count[1]) + " AT TIME: " + str(datetime.now()) + "\n\n"
+    writeline += fmt.format("Community", PARAMS['community'])
     writeline += fmt.format("Content count", str(PARAMS['content_count']))
     writeline += fmt.format("View share probability mean", str(PARAMS['vwshprob_mean']))
     writeline += fmt.format("View share probability standard deviation", str(PARAMS['vwshprob_stdv']))
-    writeline += fmt.format("View probability boost", str(PARAMS['view_boost']))
-    writeline += fmt.format("Share probability boost", str(PARAMS['share_boost']))
-    writeline += fmt.format("Weight threshold", str(PARAMS['weight_threshold']))
     writeline += fmt.format("Content minimum level view probability boost", str(PARAMS['cmlb_view']))
     writeline += fmt.format("Content minimum level share probability boost", str(PARAMS['cmlb_share']))
+    writeline += fmt.format("Filtered on basis of mean", str(PARAMS['filtered_mean']))
+    writeline += fmt.format("Filtered on basis of median", str(PARAMS['filtered_median']))
     writeline += "\n"
     writeline += fmt.format("Total number of edges", str(comparison_stats['total_edges']))
     writeline += fmt.format("True positive", str(comparison_stats['true_positive']))
@@ -113,20 +116,18 @@ def generate_all_timelines ():
 
     #fp = open(os.path.join("/home/satadal/Workspaces/Projects/Social.Caching/Code","all_results_"+str(sequence_number)+".txt"),"w")
     count = 0    
+    totalCount = 226
 
     PARAMS, ALLVAR, STATVAR = load_all_properties()
-    PARAMS["relevant_nodes"] = getRelevantNodes()
-
-    # Fake comparison_stats for testing; comment this in actual runs, and uncomment CG.compare_graphs() calls
-    # comparison_stats = fake_comparison_stats_fill()
-
+    
     # Prepare the property set for current simulation run
 
-    #for cw_item in ALLVAR['compare_with']:
-    for i in range(1): # Dummy to run just once
+    for comparisonCriterion in SP.COMPARE_WITH:
 
-        #PARAMS['compare_with'] = cw_item
+	print "Starting for comparison criterion: "+comparisonCriterion
+        PARAMS['compare_with'] = comparisonCriterion
         PARAMS = load_default_properties(PARAMS)
+        PARAMS['relevant_nodes'] = getRelevantNodes(PARAMS)
 
         # Variation for content count
         start = STATVAR['content_count'][0]
@@ -134,13 +135,12 @@ def generate_all_timelines ():
         step = STATVAR['content_count'][2]
         for i in range (start, stop+step, step):
             PARAMS['content_count'] = i
-            #comparison_stats = CG.compare_graphs(PARAMS)
+            start_time = timeit.default_timer()
             GT.generate_timeline(PARAMS)
+            elapsed = timeit.default_timer() - start_time
+            print ("Generated timeline for "+str(count+1)+" out of "+str(totalCount)+"; Elapsed time: "+str(elapsed))
             count += 1
-            print("Generate Timelines: "+str(count)+" out of 193")
-            #dump_results (fp, PARAMS, comparison_stats, count)
         PARAMS['content_count'] = STATVAR['content_count'][3]
-        print ("COUNT: "+str(count))
 
         # Variation for view-share probability mean and standard deviation
         mn_start = STATVAR['vwshprob_mean'][0]
@@ -153,44 +153,13 @@ def generate_all_timelines ():
             for j in np.linspace(sd_start, sd_stop, num = int((sd_stop-sd_start)/sd_step)+1):
                 PARAMS['vwshprob_mean'] = i
                 PARAMS['vwshprob_stdv'] = j
-                #comparison_stats = CG.compare_graphs(PARAMS)
-                #GT.generate_timeline(PARAMS)
+                start_time = timeit.default_timer()
+            	GT.generate_timeline(PARAMS)
+            	elapsed = timeit.default_timer() - start_time
+            	print ("Generated timeline for "+str(count+1)+" out of "+str(totalCount)+"; Elapsed time: "+str(elapsed))
                 count += 1
-                print("Generate Timelines: "+str(count)+" out of 193")
-                #dump_results (fp, PARAMS, comparison_stats, count)
         PARAMS['vwshprob_mean'] = STATVAR['vwshprob_mean'][3]
         PARAMS['vwshprob_stdv'] = STATVAR['vwshprob_stdv'][3]
-        print ("COUNT: "+str(count))
-
-        # Variation of view and share probability boost values
-        #vb_start = STATVAR['view_boost'][0]
-        #vb_stop = STATVAR['view_boost'][1]
-        #vb_step = STATVAR['view_boost'][2]
-        #sb_start = STATVAR['share_boost'][0]
-        #sb_stop = STATVAR['share_boost'][1]
-        #sb_step = STATVAR['share_boost'][2]
-        #for i in np.linspace(vb_start, vb_stop, num = int((vb_stop-vb_start)/vb_step)+1):
-        #    for j in np.linspace(sb_start, sb_stop, num = int((sb_stop-sb_start)/sb_step)+1):
-        #        PARAMS['view_boost'] = i
-        #        PARAMS['share_boost'] = j
-        #        #comparison_stats = CG.compare_graphs(PARAMS)
-        #        GT.generate_timeline(PARAMS)
-        #        count += 1
-                #dump_results(fp, PARAMS, comparison_stats, count)
-        #PARAMS['view_boost'] = STATVAR['view_boost'][3]
-        #PARAMS['share_boost'] = STATVAR['share_boost'][3]
-
-        # Variation of weight_threshold
-        '''wt_start = STATVAR['threshold'][0]
-        wt_stop = STATVAR['threshold'][1]
-        wt_step = STATVAR['threshold'][2]
-        for i in np.linspace(wt_start, wt_stop, num = int((wt_stop-wt_start)/wt_step)+1):
-            PARAMS['threshold'] = i
-            comparison_stats = CG.compare_graphs(PARAMS)
-            count += 1
-            dump_results(fp, PARAMS, comparison_stats, count)
-        PARAMS['threshold'] = STATVAR['threshold'][3]
-        '''
 
         # Variation of content level view and share probability boosts
         cbv_start = STATVAR['cmlb_view'][0]        
@@ -203,29 +172,14 @@ def generate_all_timelines ():
             for j in np.linspace(cbs_start, cbs_stop, num = int((cbs_stop-cbs_start)/cbs_step)+1):
                 PARAMS['cmlb_view'] = i
                 PARAMS['cmlb_share'] = j
-                #comparison_stats = CG.compare_graphs(PARAMS)
-                #GT.generate_timeline(PARAMS)
-                print("Generate Timelines: "+str(count)+" out of 193")
+                start_time = timeit.default_timer()
+            	GT.generate_timeline(PARAMS)
+            	elapsed = timeit.default_timer() - start_time
+            	print ("Generated timeline for "+str(count+1)+" out of "+str(totalCount)+"; Elapsed time: "+str(elapsed))
                 count += 1
-                #dump_results(fp, PARAMS, comparison_stats, count)
         PARAMS['cmlb_view'] = STATVAR['cmlb_view'][3]
         PARAMS['cmlb_share'] = STATVAR['cmlb_share'][3]
         print ("COUNT: "+str(count))
-
-        # Variation for sample size
-        #start = STATVAR['sample_size'][0]
-        #stop = STATVAR['sample_size'][1]
-        #step = STATVAR['sample_size'][2]
-        #for i in range ( start, stop+step, step ):
-        #    PARAMS['sample_size'] = i
-        #    comparison_stats = CG.compare_graphs(PARAMS)
-        #    count += 1
-        #    dump_results (fp, PARAMS, comparison_stats, count)
-        #PARAMS['sample_size'] = STATVAR['sample_size'][3]    
-
-    #fp.close()
-    #display("generate_all_timelines", str(count))
-    #print count
 
     return
 
