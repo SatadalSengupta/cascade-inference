@@ -8,9 +8,8 @@ import timeit
 
 def generate_all_results():
 
-    Grelevant = nx.read_edgelist(os.path.join("resource","facebook.txt"), nodetype=int)
-
     for community in ["MaxSize","MaxEdgeDensity"]:
+        Grelevant = nx.read_edgelist(os.path.join("resource","facebook.txt"), nodetype=int)
         print "Starting for community: "+community
         PARAMS = {}
         PARAMS['compare_with'] = community
@@ -19,7 +18,7 @@ def generate_all_results():
             if node not in relevantNodes:
                 Grelevant.remove_node(node)
         path = os.path.join("timelines",community)
-        allFiles = os.listdir(path)
+        allFiles = sorted(os.listdir(path))
         i = 1
         for f in allFiles:
             start_time = timeit.default_timer()

@@ -153,7 +153,7 @@ def infer_graph(Grelevant, filename, community, count):
     Ginferred_mean = filter_on_mean(Ginferred)
     Ginferred_median = filter_on_median(Ginferred)
     PARAMS['community'] = community
-    fp = open("results.txt","a")
+    fp = open("results_latest.txt","a")
     PARAMS['filtered_mean'] = 1
     PARAMS['filtered_median'] = 0
     comparisonStats = compare_graphs(Grelevant,Ginferred_mean)
