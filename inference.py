@@ -5,7 +5,8 @@ from datetime import datetime
 from utilities import *
 import numpy as np
 import run_all_simulations as RAS
-
+import random
+import sys
 ###################################################
 
 def get_comparison_stats (Grelevant, Ginferred):
@@ -50,10 +51,11 @@ def add_to_inferred_graph (Gintermediate, contentTimeline):
 
     while count<length:
 
+        begin = count
         while (count<length) and (contentTimeline[count][3] == "share"):
             count += 1
         
-        latestShare = contentTimeline[count-1]
+        latestShare = contentTimeline[random.randint(begin,count-1)]
         while (count<length) and (contentTimeline[count][3] == "view"):
             if Gintermediate.has_edge(latestShare[1],contentTimeline[count][1]):
                 Gintermediate[latestShare[1]][contentTimeline[count][1]]['weight'] += 1
@@ -65,7 +67,7 @@ def add_to_inferred_graph (Gintermediate, contentTimeline):
 
 #################################
 
-def build_intermediate_graph(filename,community):
+def build_intermediate_graph(filename,community,isLatest):
 
     PARAMS = {}
     tokens = filename.split("_")
@@ -148,12 +150,12 @@ def filter_on_median(Ginferred):
 
 def infer_graph(Grelevant, filename, community, count):
 
-    Ginferred, PARAMS = build_intermediate_graph(filename,community)
+    Ginferred, PARAMS = build_intermediate_graph(filename,community,True)
     add_confidence_values(Ginferred)
     Ginferred_mean = filter_on_mean(Ginferred)
     Ginferred_median = filter_on_median(Ginferred)
     PARAMS['community'] = community
-    fp = open("results.txt","a")
+    fp = open("results_random.txt","a")
     PARAMS['filtered_mean'] = 1
     PARAMS['filtered_median'] = 0
     comparisonStats = compare_graphs(Grelevant,Ginferred_mean)
