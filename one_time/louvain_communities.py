@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 #better with karate_graph() as defined in networkx example.
 #erdos renyi don't have true community structure
-G = nx.read_edgelist("resource/facebook.txt",nodetype=int)
+G = nx.read_edgelist("facebook.txt",nodetype=int)
 
 #first compute the best partition
 partition = community.best_partition(G)
