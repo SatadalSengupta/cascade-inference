@@ -10,7 +10,7 @@ dist['cmlv-cmls'] = 113
 
 def parse():
 
-    fp = open("results_latest.txt","r")
+    fp = open("results_add_all.txt","r")
     newRun = True
     allResults = []
     currentResult = []
@@ -75,6 +75,7 @@ def parse():
                     fpString += "content-count.txt"
                     fp = open("plots/"+fpString,"a")
                     fp.write(str(i)+" "+str(coco)+" "+str(trpo)+" "+str(fapo)+" "+str(mied)+"\n")
+                    #print str(i)+" "+str(coco)+" "+str(trpo)+" "+str(fapo)+" "+str(mied)+"\n"
                     fp.close()
                     fpString = "".join(prevfpString)
                 elif i>=dist['coco'] and i<dist['vspm-vssd']:
