@@ -51,16 +51,18 @@ def add_to_inferred_graph (Gintermediate, contentTimeline):
 
     while count<length:
 
-        begin = count
+        start = count
         while (count<length) and (contentTimeline[count][3] == "share"):
             count += 1
-        
-        latestShare = contentTimeline[random.randint(begin,count-1)]
+        end = count
+
         while (count<length) and (contentTimeline[count][3] == "view"):
-            if Gintermediate.has_edge(latestShare[1],contentTimeline[count][1]):
-                Gintermediate[latestShare[1]][contentTimeline[count][1]]['weight'] += 1
-            else:
-                Gintermediate.add_edge(latestShare[1],contentTimeline[count][1],weight=1)
+            for i in range(start,end):
+                currentShare = contentTimeline[i]
+                if Gintermediate.has_edge(currentShare[1],contentTimeline[count][1]):
+                    Gintermediate[currentShare[1]][contentTimeline[count][1]]['weight'] += 1
+                else:
+                    Gintermediate.add_edge(currentShare[1],contentTimeline[count][1],weight=1)
             count += 1
 
     return
@@ -125,6 +127,7 @@ def add_confidence_values(Ginferred):
 
     Ginferred.graph['mean'] = np.mean(values)
     Ginferred.graph['median'] = np.median(values)
+    Ginferred.graph['stdv'] = np.std(values)
 
     return
 
@@ -148,22 +151,36 @@ def filter_on_median(Ginferred):
 
 #################################
 
-def infer_graph(Grelevant, filename, community, count):
+def filter_on_times_stdv (Ginferred,times_stdv):
+    Ginferred_times_stdv = Ginferred.copy()
+    threshold = Ginferred.graph['mean'] + (times_stdv*Ginferred.graph['stdv'])
+    for (v,u,d) in Ginferred_times_stdv.edges(data=True):
+        if d['conf'] < threshold:
+            Ginferred_times_stdv.remove_edge(v,u)
+    return Ginferred_times_stdv
+
+#################################
+
+def infer_graph(Grelevant, filename, community, count, times_stdv):
 
     Ginferred, PARAMS = build_intermediate_graph(filename,community,True)
     add_confidence_values(Ginferred)
-    Ginferred_mean = filter_on_mean(Ginferred)
-    Ginferred_median = filter_on_median(Ginferred)
+    #Ginferred_mean = filter_on_mean(Ginferred)
+    #Ginferred_median = filter_on_median(Ginferred)
+    Ginferred_times_stdv = filter_on_times_stdv(Ginferred,times_stdv)
     PARAMS['community'] = community
-    fp = open("results_random.txt","a")
-    PARAMS['filtered_mean'] = 1
-    PARAMS['filtered_median'] = 0
-    comparisonStats = compare_graphs(Grelevant,Ginferred_mean)
-    RAS.dump_results(fp,PARAMS,comparisonStats,count)
-    PARAMS['filtered_mean'] = 0
-    PARAMS['filtered_median'] = 1
-    comparisonStats = compare_graphs(Grelevant,Ginferred_median)
-    RAS.dump_results(fp,PARAMS,comparisonStats,count)
+    #fp = open("results_add_all.txt","a")
+    #PARAMS['filtered_mean'] = 1
+    #PARAMS['filtered_median'] = 0
+    PARAMS['times_stdv'] = times_stdv
+    comparisonStats = compare_graphs(Grelevant,Ginferred_times_stdv)
+    #RAS.dump_results(fp,PARAMS,comparisonStats,count)
+    #PARAMS['filtered_mean'] = 0
+    #PARAMS['filtered_median'] = 1
+    #comparisonStats = compare_graphs(Grelevant,Ginferred_median)
+    #RAS.dump_results(fp,PARAMS,comparisonStats,count)
+    return comparisonStats, PARAMS
+>>>>>>> 084986a351d6c2dac5ebebd7c0bd5c1e207b577e
 
 #################################
 
