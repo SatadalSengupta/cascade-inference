@@ -119,11 +119,10 @@ def generate_all_timelines ():
     totalCount = 226
 
     PARAMS, ALLVAR, STATVAR = load_all_properties()
-    
     # Prepare the property set for current simulation run
 
     for comparisonCriterion in SP.COMPARE_WITH:
-
+        os.makedirs(os.path.join('timelines', comparisonCriterion))
 	print "Starting for comparison criterion: "+comparisonCriterion
         PARAMS['compare_with'] = comparisonCriterion
         PARAMS = load_default_properties(PARAMS)
