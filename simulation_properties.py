@@ -6,10 +6,10 @@ PARAMS = {}
 
 ### Locations ###
 
-DIR_TIMELINE = os.path.abspath()
-DIR_RESULTS = os.path.abspath()
-DIR_PLOTS = os.path.abspath()
-DIR_CWD = os.getcwd()
+DIR_TIMELINE = os.path.abspath('')
+DIR_RESULTS = os.path.abspath('')
+DIR_PLOTS = os.path.abspath('plots')
+CWD = os.getcwd()
 
 ### Utility Properties ###
 
@@ -43,6 +43,7 @@ CONTENT_MINLVL_BOOST_SHARE = [ 0.0, 0.8, 0.1, 0.3 ] # Level-X Boost = Level-Min 
 ### Results ###
 
 COMMUNITIES = ["MaxSize", "MaxEdgeDensity"]
+COMPARE_WITH = COMMUNITIES
 
 THRESHOLD_TYPE = "TimesMean" # One of ("TimesMean", "Statistical", "StaticValues")
 
